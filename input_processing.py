@@ -33,18 +33,26 @@ class Sensor:
     #When either input is invalid, 3 vision status remain unchange, program_status will update to reflect detection of invalid input
     def update_status(self, status_to_change, change):
         if status_to_change == "1":
-            if change == "yellow" or change == "green" or change == "red":
-                self.traffic_light_status = change
-            else: self.program_status = 0
+            try: # Vision input other than yellow, green or red will trigger Value Error
+                if not(change == "yellow" or change == "green" or change == "red"):
+                    raise ValueError()
+                else:self.traffic_light_status = change
+            except ValueError:
+                print("In valid vision change.\n")
         elif status_to_change == "2":
-            if change == "yes" or change == "no":
-                self.pedestrian_status = change
-            else: self.program_status = 0
+            try: # Vision input other than yes or no will trigger Value Error
+                if not (change == "yes" or change == "no"):
+                    raise ValueError()
+                else: self.pedestrian_status = change
+            except ValueError:
+                print("In valid vision change.\n")
         elif status_to_change == "3":
-            if change == "yes" or change == "no":
-                self.vehicle_status = change
-            else: self.program_status = 0
-        else: self.program_status = 2
+            try: # Vision input other than yes or no will trigger Value Error
+                if not(change == "yes" or change == "no"):
+                    raise ValueError
+                else: self.vehicle_status = change
+            except ValueError:
+                print("In valid vision change.\n")
     
     #def dcision_making makes decision upon program requirment
     #Any scenario where a red light, a pedestrian or a vehicle are detected makes variable decision "STOP"
@@ -59,28 +67,17 @@ class Sensor:
             self.decision = "Caution"
         
 
+
 #def print_message() wor
 #1. check if any input is invalid by checking program_status in the input sensor object
 #2. print out sensor status and decision made if all inputs are valid
 #   or  print out error message if any input is invalid
 def print_message(sensor):
-    if sensor.program_status == 1:
         sensor.decision_making()
         print(sensor.decision, "\n")
         print("Light =",sensor.traffic_light_status,",",
              "Pedestrian =",sensor.pedestrian_status,",",
              "Vehicle =",sensor.vehicle_status)
-    elif sensor.program_status == 0:
-        print("Invalid vision change.\n")
-        sensor.decision_making()
-        print(sensor.decision, "\n")
-        print("Light =",sensor.traffic_light_status,",",
-             "Pedestrian =",sensor.pedestrian_status,",",
-             "Vehicle =",sensor.vehicle_status)
-        sensor.program_status = 1
-    else:
-        print("Invalid input. Please input 1, 2, 3, or 0")
-        sensor.program_status = 1
 
 #User will provide 2 inputs
 #After first input, def status_change_option() displays message to tell user what the first input is and what the 2nd input can be
@@ -114,16 +111,20 @@ def main():
         print("\nAre changes detected in the vision input?")
         status_select = input("Select 1 for light, 2 for pedestrian, 3 for vehicle, or 0 to end the program: ")
         status_change_option(status_select)
-
-        if status_select == "0":#If first input is "0", break. Display "Program ends". No need to ask for the second input
-            break
-        elif not (status_select == "1" or status_select == "2" or status_select == "3"): #If first input is not 1, 2, 3, or 0. Print "invalid input", program won't ask for the second input
+        try: # input other than 1, 2, 3 or 4 will trigger Value Error
+            if not (status_select == "1" or status_select == "2" or status_select == "3" or status_select == "0"):
+                raise ValueError()
+            else:
+                if status_select == "0":#If first input is "0", break. Display "Program ends". No need to ask for the second input
+                    break
+                else:
+                    status_update_option = input("What change has been identified? : ") #Program asks for the second input. #Input 2: green, yellow, or red for trafic_light_status     yes or no for pedestrian_status     yes or no for vehicle_status
+                    print()
+                    sensor1.update_status(status_select, status_update_option) #After both input are collected, object sensor 1 will update internal variables. Object sensor will check if the second input is valid or not.
+                    print_message(sensor1)#Program displays sensor status and decision made. It also diplay message if the second input is invalid.
+        except ValueError:
             print("Invalid input. Please input 1, 2, 3, or 0")
-        else:
-            status_update_option = input("What change has been identified? : ") #Program asks for the second input. #Input 2: green, yellow, or red for trafic_light_status     yes or no for pedestrian_status     yes or no for vehicle_status
-            print()
-            sensor1.update_status(status_select, status_update_option) #After both input are collected, object sensor 1 will update internal variables. Object sensor will check if the second input is valid or not.
-            print_message(sensor1)#Program displays sensor status and decision made. It also diplay message if the second input is invalid.
+        
 
 
 # Conventional Python code for running main within a larger program
